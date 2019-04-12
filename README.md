@@ -24,7 +24,7 @@ Tested on Virtual EPG 2.
 #### Usage
 
 ```
-EPG PM Log Reader - Version 0.4.2
+EPG PM Log Reader - Version 0.4.4
 Copyright © 2019 - Pablo Meniño <pablo.menino@gmail.com>
 
 Usage: ./epg_pm_log_reader.pl [options]
