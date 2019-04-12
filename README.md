@@ -33,6 +33,7 @@ options:
   --print_help                             - Print this help
   --print_version                          - Print version info
   --pm_directory=/path/to/pm/              - Where the PM Log files are
+  --get_board_allocation                   - Export CPU usage
   --get_pgw_apn_gx                         - Export PGW APN Gx Statistic
   --get_pgw_apn_radius                     - Export PGW APN Radius Statistic
 

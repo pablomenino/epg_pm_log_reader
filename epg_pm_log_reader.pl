@@ -2,7 +2,7 @@
 
 #----------------------------------------------------------------------------------------
 # EPG PM Log Reader Script
-# Version: 0.4.3
+# Version: 0.4.4
 # 
 # WebSite:
 # https://github.com/pablomenino/epg_pm_log_reader
@@ -37,7 +37,7 @@ use Chart::Gnuplot;
 # Var declaration -----------------------------------------------------
 
 # Version Control
-my $version = "0.4.3";
+my $version = "0.4.4";
 
 # True or False type
 use constant false => 0;
@@ -63,11 +63,13 @@ my $exported_directory = "./exported";
 # Operations
 my $get_pgw_apn_gx = false;
 my $get_pgw_apn_radius = false;
+my $get_board_allocation = false;
 
 # Statistics
 my $files_count = 0;
 my $apn_count = 0;
 my $radius_count = 0;
+my $board_allocation_count = 0;
 
 my $report_title = "";
 
@@ -209,6 +211,19 @@ my $p_radius_data_5_delta_value = 0;
 # CVS Radius Report Hash
 my %csv_radius_report;
 
+# CSV board_allocation Header
+my $p_ba_header_time = "time";
+my $p_ba_header_board = "board";
+my $p_ba_header_1 = "average-cpu-usage";
+my $p_ba_header_2 = "peak-cpu-usage";
+
+# CSV board_allocation data
+my $p_ba_data_1 = "";
+my $p_ba_data_2 = "";
+
+# CVS board_allocation Report Hash
+my %csv_board_allocation_report;
+
 # CSV separator char
 my $csv_separator_var = "|";
 
@@ -275,6 +290,10 @@ sub get_arg()
         {
             $verbose_mode = true;
         }
+        elsif ($_ =~ m/^\-\-get_board_allocation$/)
+        {
+            $get_board_allocation = true;
+        }
     }
 }
 
@@ -290,7 +309,8 @@ sub print_help()
 	print "  --print_help                             - Print this help\n";
 	print "  --print_version                          - Print version info\n";
 	print "  --pm_directory=/path/to/pm/              - Where the PM Log files are\n";
-	print "  --get_pgw_apn_gx                         - Export PGW APN Gx Statistic\n";
+	print "  --get_board_allocation                   - Export CPU usage\n";
+    print "  --get_pgw_apn_gx                         - Export PGW APN Gx Statistic\n";
     print "  --get_pgw_apn_radius                     - Export PGW APN Radius Statistic\n";
 	print "\n";
 	print "  --gx_filter_apn_list=apnlist             - Filter Gx Statistics by APN\n";
@@ -1029,6 +1049,49 @@ sub calculate_delta_radius()
 
 }
 
+#----------------------------------------------------------------------
+# Functions - save_board_allocation_report ----------------------------
+
+sub save_board_allocation_report()
+{
+
+    my $push_string = "";
+    $push_string = $push_string . $p_ba_header_board . $csv_separator_var ;
+    $push_string = $push_string . $p_ba_header_time . $csv_separator_var ;
+    $push_string = $push_string . $p_ba_header_1 . $csv_separator_var ;
+    $push_string = $push_string . $p_ba_header_2;
+
+	print "\n" if ($verbose_mode);
+
+    # Open file
+    my $filename = "";
+    if ( $report_title ne "")
+    {
+        $filename = $exported_directory . "/" . $report_title . "_report_cpu_" . $nano . ".csv";
+    }
+    else
+    {
+        $filename = $exported_directory . "/report_cpu_" . $nano . ".csv";
+    }
+
+    open(my $fh, '>', $filename) or die "Could not open file '$filename' $!";
+    
+    # Print Header in file.
+    print $fh $push_string . "\n";
+
+print Dumper (%csv_board_allocation_report);
+
+    # Export records
+    foreach my $board (sort keys %csv_board_allocation_report)
+    {
+        foreach my $data_array (@{$csv_board_allocation_report{$board}} )
+        {
+            print $fh  $board . $csv_separator_var . $data_array . "\n";
+        }
+    }
+
+    close $fh;
+}
 
 #----------------------------------------------------------------------
 # Functions - gx_sub_array --------------------------------------------
@@ -1177,6 +1240,40 @@ sub gx_sub_array()
 }
 
 #----------------------------------------------------------------------
+# Functions - board_allocation_sub_array ------------------------------
+
+sub board_allocation_sub_array()
+{
+    my ($data_array_2, $push_string) = @_;
+
+    # CSV data
+    $p_ba_data_1 = "";
+    $p_ba_data_2 = "";
+
+    foreach my $data_array_3 (@{ $data_array_2->{'r'} } )
+    {
+        switch ($data_array_3->{'p'})
+        {
+            case 1
+            { 
+                print ("======> " . "average-cpu-usage => " . $data_array_3->{'content'} . " \n") if ($verbose_mode);
+                $p_ba_data_1 = $data_array_3->{'content'};
+            }
+            case 2
+            { 
+                print ("======> " . "peak-cpu-usage => " . $data_array_3->{'content'} . " \n") if ($verbose_mode);
+                $p_ba_data_2 = $data_array_3->{'content'};
+            }
+        }
+    }
+
+    $push_string = $push_string . $p_ba_data_1 . $csv_separator_var ;
+    $push_string = $push_string . $p_ba_data_2;
+    
+    return $push_string;
+}
+
+#----------------------------------------------------------------------
 # Functions - radius_sub_array ----------------------------------------
 
 sub radius_sub_array()
@@ -1254,7 +1351,35 @@ sub pgw_apn()
 
     foreach my $data_array ( @{ $dom->{'measData'}->{'measInfo'} } )
     {
-        
+
+        if ( ($data_array->{'measInfoId'} eq "board-information") and $get_board_allocation )
+        {
+            print ("==> board-allocation:\n") if ($verbose_mode);
+
+            my $granPeriod = $data_array->{'granPeriod'}->{'endTime'};
+            
+            foreach my $data_array_2 ( @{ $data_array->{'measValue'} } )
+            {
+
+                my $board = (split '=', $data_array_2->{'measObjLdn'})[1];
+                $board =~ tr/]//d;
+
+                print ("====> End period time: " . $granPeriod . "\n") if ($verbose_mode);
+                print ("====> Board: " . $board . " \n") if ($verbose_mode);
+
+                $board_allocation_count = $board_allocation_count + 1;
+
+                $push_string = "";
+                # Push time
+                $push_string = $push_string . $granPeriod . $csv_separator_var ;
+                # Push data
+                $push_string = &board_allocation_sub_array($data_array_2, $push_string);
+                push (@{$csv_board_allocation_report{$board}}, $push_string);
+                print Dumper (%csv_board_allocation_report);
+
+                print ("\n") if ($verbose_mode);
+            }
+        }
 
         if ( ($data_array->{'measInfoId'} eq "ggsn-apn-radius-acct-servers-stats") and $get_pgw_apn_radius )
         {
@@ -1454,7 +1579,16 @@ sub find_xml_files_and_export()
     closedir(DIR);
     # Remove directory information . and  ..
     $files_count = $files_count - 2;
-    
+
+    if ($get_board_allocation)
+    {
+        #print ("\nCalculate delta values ... pgw-apn-radius.\n");
+        #calculate_delta_radius();
+        print ("\nSaving ... board_allocation report.\n");
+        save_board_allocation_report();
+        #save_board_allocation_plot();
+    }
+
     if ($get_pgw_apn_gx)
     {
         print ("\nCalculate delta values ... pgw-apn-gx.\n");
@@ -1472,6 +1606,7 @@ sub find_xml_files_and_export()
         save_radius_report();
         save_radius_plot();
     }
+
 }
 
 #----------------------------------------------------------------------
@@ -1501,7 +1636,7 @@ else
 		}
 		else
 		{
-            if ($get_pgw_apn_gx or $get_pgw_apn_radius)
+            if ($get_pgw_apn_gx or $get_pgw_apn_radius or $get_board_allocation)
             {
                 print_version();
                 # Parse Gx Statistics
@@ -1522,6 +1657,10 @@ print "\n----------------------------------------------------------------\n";
 print "Final Report: ---------------------------------------------------\n";
 print "Date: $nano ---------------------------------------------------\n";
 print "Execution time: $run_time seconds\n";
+if ($get_board_allocation)
+{
+    print "board_allocation Statistics: Parsed $files_count files and $board_allocation_count statistics.\n";
+}
 if ($get_pgw_apn_gx)
 {
     print "pgw-apn-gx Statistics: Parsed $files_count files and $apn_count APN+Server.\n";
