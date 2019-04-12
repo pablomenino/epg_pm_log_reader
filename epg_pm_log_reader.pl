@@ -2,7 +2,7 @@
 
 #----------------------------------------------------------------------------------------
 # EPG PM Log Reader Script
-# Version: 0.4.2
+# Version: 0.4.3
 # 
 # WebSite:
 # https://github.com/pablomenino/epg_pm_log_reader
@@ -37,7 +37,7 @@ use Chart::Gnuplot;
 # Var declaration -----------------------------------------------------
 
 # Version Control
-my $version = "0.4.2";
+my $version = "0.4.3";
 
 # True or False type
 use constant false => 0;
@@ -320,7 +320,10 @@ sub print_help()
     print "  --report_title=title_name                - Prepend text to all report files\n";
     print "  --verbose_mode                           - Enable detailed output mode for troubleshooting.\n";
 	print "\n";
-    print "Note: By default the imput directory to find PM Log files are: ./pm_files/ and exported files: ./exported/\n";
+    print "Note: * By default the imput directory to find PM Log files are: ./pm_files/ and exported files: ./exported/\n";
+    print "      * If no report_title is provided, the node name is used.\n";
+    print "      * This script needs 3 imput files to be able to create a chart.\n";
+    print "      * Gnuplot can't create charts with empty data (Filter APN names if there is no data in some APN).\n";
 	print "\n";
 }
 
@@ -1244,6 +1247,11 @@ sub pgw_apn()
 
     my $push_string = "";
 
+    if ($report_title eq "")
+    {
+        $report_title = $dom->{'measData'}->{'managedElement'}->{'localDn'};
+    }
+
     foreach my $data_array ( @{ $dom->{'measData'}->{'measInfo'} } )
     {
         
@@ -1431,6 +1439,8 @@ sub find_xml_files_and_export()
     foreach( sort { $a cmp $b } readdir(DIR))
     {
         $files_count = $files_count + 1;
+        # Ignore directory
+        next if ($_ eq '.' or $_ eq '..');
         # Use a regular expression to ignore files beginning with a period
         next if ($_ =~ m/^\./);
         # Use a regular expression to get xml files

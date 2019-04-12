@@ -63,5 +63,8 @@ options:
   --report_title=title_name                - Prepend text to all report files
   --verbose_mode                           - Enable detailed output mode for troubleshooting.
 
-Note: By default the imput directory to find PM Log files are: ./pm_files/ and exported files: ./exported/
+Note: * By default the imput directory to find PM Log files are: ./pm_files/ and exported files: ./exported/
+      * If no report_title is provided, the node name is used.
+      * This script needs 3 imput files to be able to create a chart.
+      * Gnuplot can't create charts with empty data (Filter APN names if there is no data in some APN).
 ```
