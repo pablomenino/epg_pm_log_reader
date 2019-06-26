@@ -2,7 +2,7 @@
 
 #----------------------------------------------------------------------------------------
 # EPG PM Log Reader Script
-# Version: 0.4.4
+# Version: 0.4.5
 # 
 # WebSite:
 # https://github.com/pablomenino/epg_pm_log_reader
@@ -37,7 +37,7 @@ use Chart::Gnuplot;
 # Var declaration -----------------------------------------------------
 
 # Version Control
-my $version = "0.4.4";
+my $version = "0.4.5";
 
 # True or False type
 use constant false => 0;
@@ -690,6 +690,159 @@ sub save_radius_plot()
 
         }
     }
+}
+
+
+#----------------------------------------------------------------------
+# Functions - save_board_allocation_plot ------------------------------
+
+sub save_board_allocation_plot()
+{
+
+    # Open file
+    my $filename = "";
+    if ( $report_title ne "")
+    {
+        $filename = $exported_directory . "/" . $report_title . "_plot_cpu_" . $nano . ".png";
+    }
+    else
+    {
+        $filename = $exported_directory . "/report_plot_cpu_" . $nano . ".png";
+    }
+
+    my @array_plot_data_time;
+    my @array_plot_data;
+    my @array_plot_data_all;
+    my $board_index = 0;
+    my $board_name = "";
+
+    # Export records
+    foreach my $board (sort keys %csv_board_allocation_report)
+    {
+        $board_name = $board;
+
+        foreach my $data_array (@{$csv_board_allocation_report{$board}})
+        {
+
+            my @fields = (split '\|', $data_array);
+
+            if ($board_index eq 0)
+            {
+                push (@array_plot_data_time, substr($fields[0],0,19));
+                push (@array_plot_data, $fields[1]);
+            }
+            #elsif ($board_pos eq $fields[1])
+            #{
+            #}
+        }
+
+        $board_index = $board_index + 1;
+
+        # my $xlabel_time_init = $array_plot_data_time[0];
+        # $xlabel_time_init =~ tr/T/ /;
+        # my $xlabel_time_end = $array_plot_data_time[$#array_plot_data_time];
+        # $xlabel_time_end =~ tr/T/ /;
+
+        # my @yrange_max_array;
+        # push (@yrange_max_array, max(@array_plot_data_p1_delta));
+        # push (@yrange_max_array, max(@array_plot_data_p2_delta));
+
+        # # Initiate the chart object
+        # my $chart = Chart::Gnuplot->new(
+        #     output => $filename,
+        #     title  => "Statistics Radius",
+        #     xlabel => "Init time: " . $xlabel_time_init . ", End time: " . $xlabel_time_end,
+        #     ylabel => "CPU: " . $board,
+        #     yrange => [0, 100],
+        #     grid    => 'on',
+        #     imagesize => "1.8, 1.5",
+        #     timeaxis => "x",
+        #     bg     => {
+        #                 color   => "#c9c9ff",
+        #                 density => 0.2,
+        #             },
+        #     legend => {position => 'right'},
+        #     legend => {
+        #                 border => {
+        #                 linetype => 2,
+        #                 width    => 2,
+        #                 color    => "blue",
+        #                 },
+        #             width  => 2,
+        #             height => 2,
+        #             },
+        # );
+
+        # my $x1 = Chart::Gnuplot::DataSet->new(
+        #     xdata  => \@array_plot_data_time,
+        #     ydata  => \@array_plot_data_p1_delta,
+        #     style  => 'linespoints',
+        #     pointtype => 30,
+        #     width => 3,
+        #     title  => $p_radius_header_1_delta,
+        #     color => "#AA91E7",
+        #     timefmt => '%Y-%m-%dT%H:%M:%S', 
+        # );
+
+        # my $x2 = Chart::Gnuplot::DataSet->new(
+        #     xdata  => \@array_plot_data_time,
+        #     ydata  => \@array_plot_data_p2_delta,
+        #     style  => 'linespoints',
+        #     pointtype => 30,
+        #     width => 3,
+        #     title  => $p_radius_header_2_delta,
+        #     color => "#5E9BE7",
+        #     timefmt => '%Y-%m-%dT%H:%M:%S',
+        # );
+
+        # my $x3 = Chart::Gnuplot::DataSet->new(
+        #     xdata  => \@array_plot_data_time,
+        #     ydata  => \@array_plot_data_p3_delta,
+        #     style  => 'linespoints',
+        #     pointtype => 30,
+        #     width => 3,
+        #     title  => $p_radius_header_3_delta,
+        #     color => "#4DCDAD",
+        #     timefmt => '%Y-%m-%dT%H:%M:%S',
+        # );
+
+        # my $x4 = Chart::Gnuplot::DataSet->new(
+        #     xdata  => \@array_plot_data_time,
+        #     ydata  => \@array_plot_data_p4_delta,
+        #     style  => 'linespoints',
+        #     pointtype => 30,
+        #     width => 3,
+        #     title  => $p_radius_header_4_delta,
+        #     color => "#9FD371",
+        #     timefmt => '%Y-%m-%dT%H:%M:%S',
+        # );
+
+        # my $x5 = Chart::Gnuplot::DataSet->new(
+        #     xdata  => \@array_plot_data_time,
+        #     ydata  => \@array_plot_data_p5_delta,
+        #     style  => 'linespoints',
+        #     pointtype => 30,
+        #     width => 3,
+        #     title  => $p_radius_header_5_delta,
+        #     color => "#FFCD62",
+        #     timefmt => '%Y-%m-%dT%H:%M:%S',
+        # );
+
+        # Plot the graph
+        #$chart->plot2d($x1, $x2, $x3, $x4, $x5);
+        #$chart->plot2d($x1, $x2);
+        #$chart->plot2d(@cpu_datasets);
+
+        
+        #print Dumper (@array_plot_data_p1_delta);
+
+    }
+
+    push (@array_plot_data_all[0], @array_plot_data);
+
+    print Dumper (@array_plot_data_time);
+    print Dumper (@array_plot_data);
+
 }
 
 #----------------------------------------------------------------------
@@ -1352,7 +1505,8 @@ sub pgw_apn()
     foreach my $data_array ( @{ $dom->{'measData'}->{'measInfo'} } )
     {
 
-        if ( ($data_array->{'measInfoId'} eq "board-information") and $get_board_allocation )
+        # Only fetch 60 second period files
+        if ( ($data_array->{'measInfoId'} eq "board-information") and ($get_board_allocation) and ($data_array->{'repPeriod'}->{'duration'} eq "PT60S") )
         {
             print ("==> board-allocation:\n") if ($verbose_mode);
 
@@ -1582,11 +1736,9 @@ sub find_xml_files_and_export()
 
     if ($get_board_allocation)
     {
-        #print ("\nCalculate delta values ... pgw-apn-radius.\n");
-        #calculate_delta_radius();
         print ("\nSaving ... board_allocation report.\n");
         save_board_allocation_report();
-        #save_board_allocation_plot();
+        save_board_allocation_plot();
     }
 
     if ($get_pgw_apn_gx)
