@@ -838,7 +838,7 @@ sub save_board_allocation_plot()
 
     }
 
-    push (@array_plot_data_all[0], @array_plot_data);
+    #push (@array_plot_data_all[0], @array_plot_data);
 
     print Dumper (@array_plot_data_time);
     print Dumper (@array_plot_data);
