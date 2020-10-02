@@ -1,15 +1,15 @@
 <h3 align="center">epg_pm_log_reader</h3>
-<p align="center">epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot images.</p>
+<p align="center">epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot images for Ericsson EPG PM Log files.</p>
 
 <p align="center">
-<a href="https://github.com/pablomenino/epg_pm_log_reader/releases"><img src="https://img.shields.io/github/release/pablomenino/epg_pm_log_reader.svg"></a>
-<a href="./LICENSE"><img src="https://img.shields.io/github/license/pablomenino/epg_pm_log_reader.svg"></a>
+<img src="https://img.shields.io/github/release/pablomenino/epg_pm_log_reader.svg">
+<img src="https://img.shields.io/github/license/pablomenino/epg_pm_log_reader.svg">
 </p>
 
 
-epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot images.
+epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot statistics.
 
-Tested on Virtual EPG 2.
+Tested on Ericsson Virtual EPG 2.
 
 ## Table of contents
 
@@ -20,6 +20,7 @@ Tested on Virtual EPG 2.
 #### Requirements
 
 * Perl 5.8
+* GNU Plot
 
 #### Usage
 
