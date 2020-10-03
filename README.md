@@ -1,11 +1,12 @@
 <h3 align="center">epg_pm_log_reader</h3>
+<h4 align="center">Version: 0.4.4</h4>
 <p align="center">epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot images for Ericsson EPG PM Log files.</p>
 
-<p align="center">
-<img src="https://img.shields.io/github/release/pablomenino/epg_pm_log_reader.svg">
-<img src="https://img.shields.io/github/license/pablomenino/epg_pm_log_reader.svg">
-</p>
 
+<p align="center">
+<a href="https://github.com/pablomenino/epg_pm_log_reader/releases"><img src="https://img.shields.io/github/release/pablomenino/epg_pm_log_reader.svg"></a>
+<a href="https://raw.githubusercontent.com/pablomenino/epg_pm_log_reader/master/LICENSE"><img src="https://img.shields.io/github/license/pablomenino/epg_pm_log_reader.svg"></a>
+</p>
 
 epg_pm_log_reader - Is a PM Log (Performance Management Log) parser script to export Statistics and Plot statistics.
 
